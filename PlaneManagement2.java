@@ -7,13 +7,20 @@ public class PlaneManagement2 {
 
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
+        System.out.println("*********************************************************");
+        System.out.println(" ");
+        System.out.println("*                   MENU OPTION                         *");
+        System.out.println(" ");
+        System.out.println("*********************************************************");
         System.out.println("Hello and welcome!");
         PlaneManagement2 planeManagement = new PlaneManagement2();
-
+        planeManagement.initializeSeats();          //KEEP THIS OUT SIDE LOOP BCZ IT KEEP RESETTING ARRAY.
         int choice;
         do {
-            planeManagement.initializeSeats();
+
+            planeManagement.printMenu();//PRINT PATTERN
             planeManagement.printMenu();
+
             System.out.print("Enter your choice: ");
             choice = scanner.nextInt();
 
@@ -37,7 +44,7 @@ public class PlaneManagement2 {
                     break;
 
                 case 3:
-                    // Implement find first available seat logic
+                    find_first_available();// Implement find first available seat logic
                     break;
 
                 case 4:
@@ -72,7 +79,7 @@ public class PlaneManagement2 {
 
     private void buySeat(int row, int seat) {
         if (row > 0 && row <= numberOfRows && seat > 0 && seat <= seatPerRows[row - 1]) {
-            if (seatPattern[row - 1][seat - 1] == 0) { //check if seat is available
+            if (seatPattern[row - 1][seat - 1] == 0) { //check is seat avalable
                 seatPattern[row - 1][seat - 1] = 1; // Mark seat as booked
                 System.out.println("Seat booked successfully!");
             } else {
@@ -83,7 +90,7 @@ public class PlaneManagement2 {
         }
     }
 
-    private void displayAvailableSeats() {
+    private  void displayAvailableSeats() {
         System.out.println("Available Seats:");
         for (int i = 0; i < numberOfRows; i++) {
             char rowLabel = (char) ('A' + i);
@@ -95,6 +102,20 @@ public class PlaneManagement2 {
         }
     }
 
+
+    private static void find_first_available() {
+        for (int i = 0; i < numberOfRows; i++) {
+            char rowLabel = (char) ('A' + i);
+            for (int j = 0; j < seatPerRows[i]; j++) {
+                if (seatPattern[i][j] == 0) {
+                    // Found the first available seat
+                    System.out.println("The first available seat is in row " + rowLabel + ", seat " + (j + 1) + ".");
+                    return;
+                }
+            }
+        }
+        System.out.println("Sorry, no available seats found.");
+    }
     private static void cancel_seat(int row, int seat) {
         if (row > 0 && row <= numberOfRows && seat > 0 && seat <= seatPerRows[row - 1]) {
             if (seatPattern[row - 1][seat - 1] == 1) { //Check if seat is booked
@@ -119,4 +140,7 @@ public class PlaneManagement2 {
         System.out.println("0. Quit");
         System.out.println("*********************************************************");
     }
+
+
 }
+
