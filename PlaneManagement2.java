@@ -1,5 +1,6 @@
 import java.util.Scanner;
 import java.util.ArrayList;
+import java.util.Iterator;
 
 public class PlaneManagement2 {
     private static final int numberOfRows = 4;
@@ -57,13 +58,13 @@ public class PlaneManagement2 {
 
                 case 5:
                     // Create a dummy ticket for demonstration purposes
-                    String dummyRow = "A";
-                    int dummySeat = 1;
-                    int dummyPrice = 100;
+                    String Row = "A";
+                    int Seat = 1;
+                    int Price = 100;
                     Person dummyPerson = new Person("Dummy", "Person", "dummy@example.com");
 
                     // Create a Ticket instance
-                    Ticket dummyTicket = new Ticket(dummyRow, dummySeat, dummyPrice, dummyPerson);
+                    Ticket dummyTicket = new Ticket(Row, Seat, Price, dummyPerson);
 
                     // Call the printTicketInfo method on the Ticket instance
                     dummyTicket.printTicketInfo();
@@ -95,7 +96,7 @@ public class PlaneManagement2 {
 
     private void buySeat(int row, int seat) {
         if (row > 0 && row <= numberOfRows && seat > 0 && seat <= seatPerRows[row - 1]) {
-            if (seatPattern[row - 1][seat - 1] == 0) { //check is seat avalable
+            if (seatPattern[row - 1][seat - 1] == 0) { // Check if seat is available
                 System.out.print("Enter person's name: ");
                 String name = scanner.next();
                 System.out.print("Enter person's surname: ");
@@ -112,6 +113,10 @@ public class PlaneManagement2 {
                 // Create a Ticket instance
                 Ticket ticket = new Ticket(String.valueOf((char) ('A' + row - 1)), seat, price, person);
                 seatPattern[row - 1][seat - 1] = 1; // Mark seat as booked
+
+                // Add the ticket to the soldTicketsList
+                soldTicketsList.add(ticket);
+
                 System.out.println("Seat booked successfully!");
             } else {
                 System.out.println("Sorry, the seat is already booked. Please try another seat.");
@@ -151,10 +156,13 @@ public class PlaneManagement2 {
         if (row > 0 && row <= numberOfRows && seat > 0 && seat <= seatPerRows[row - 1]) {
             if (seatPattern[row - 1][seat - 1] == 1) {
                 seatPattern[row - 1][seat - 1] = 0;
-                //soldTickets[row - 1][seat - 1] = null;
-                for (Ticket ticket : soldTicketsList) {
+
+                // Using Iterator to safely remove the ticket
+                Iterator<Ticket> iterator = soldTicketsList.iterator();
+                while (iterator.hasNext()) {
+                    Ticket ticket = iterator.next();
                     if (ticket.getRow().equals(String.valueOf((char) ('A' + row - 1))) && ticket.getSeat() == seat) {
-                        soldTicketsList.remove(ticket);
+                        iterator.remove(); // Safe removal
                         System.out.println("Seat canceled successfully!");
                         return;
                     }
@@ -195,11 +203,11 @@ public class PlaneManagement2 {
         System.out.println("0. Quit");
         System.out.println("*********************************************************");
     }
-
+    //*********************************************************************************
     public static class Person {
-        private final String name;
-        private final String surname;
-        private final String email;
+        private  String name;
+        private  String surname;
+        private  String email;
 
         public Person(String name, String surname, String email) {
             this.name = name;
@@ -218,6 +226,18 @@ public class PlaneManagement2 {
             return email;
         }
 
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        public void setSurname(String surname) {
+            this.surname = surname;
+        }
+
+        public void setEmail(String email) {
+            this.email = email;
+        }
+
         public void printPersonInfo() {
             System.out.println("Person Information:");
             System.out.println("Name: " + name);
@@ -226,10 +246,10 @@ public class PlaneManagement2 {
         }
     }
     public static class Ticket {
-        private final String row;
-        private final int seat;
-        private final int price;
-        private final Person person;
+        private  String row;
+        private int seat;
+        private int price;
+        private  Person person;
 
         public Ticket(String row, int seat, int price, Person person) {
             this.row = row;
@@ -255,6 +275,22 @@ public class PlaneManagement2 {
 
         public Person getPerson() {
             return person;
+        }
+
+        public void setRow(String row) {
+            this.row = row;
+        }
+
+        public void setSeat(int seat) {
+            this.seat = seat;
+        }
+
+        public void setPrice(int price) {
+            this.price = price;
+        }
+
+        public void setPerson(Person person) {
+            this.person = person;
         }
 
         public void printTicketInfo() {
