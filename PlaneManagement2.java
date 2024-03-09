@@ -1,9 +1,12 @@
 import java.util.Scanner;
+import java.util.ArrayList;
 
 public class PlaneManagement2 {
     private static final int numberOfRows = 4;
     private static final int[] seatPerRows = {14, 12, 12, 14};
     private static int[][] seatPattern;
+    private static final ArrayList<Ticket> soldTicketsList = new ArrayList<>();
+    private static final Scanner scanner = new Scanner(System.in);
 
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
@@ -13,6 +16,7 @@ public class PlaneManagement2 {
         System.out.println(" ");
         System.out.println("*********************************************************");
         System.out.println("Hello and welcome!");
+
         PlaneManagement2 planeManagement = new PlaneManagement2();
         planeManagement.initializeSeats();          //KEEP THIS OUT SIDE LOOP BCZ IT KEEP RESETTING ARRAY.
         int choice;
@@ -39,12 +43,12 @@ public class PlaneManagement2 {
                     char row_ca = scanner.next().charAt(0);
                     System.out.print("Enter the seat number: ");
                     int seat_cancel = scanner.nextInt();
-                    int row_cancel = row_ca - 'A' + 1; // Fix: Use 'row_ca' instead of 'rowLabel'
+                    int row_cancel = row_ca - 'A' + 1;
                     cancel_seat(row_cancel, seat_cancel);
                     break;
 
                 case 3:
-                    find_first_available();// Implement find first available seat logic
+                    find_first_available();
                     break;
 
                 case 4:
@@ -52,11 +56,22 @@ public class PlaneManagement2 {
                     break;
 
                 case 5:
-                    // Implement printing tickets information and total sales
+                    // Create a dummy ticket for demonstration purposes
+                    String dummyRow = "A";
+                    int dummySeat = 1;
+                    int dummyPrice = 100;
+                    Person dummyPerson = new Person("Dummy", "Person", "dummy@example.com");
+
+                    // Create a Ticket instance
+                    Ticket dummyTicket = new Ticket(dummyRow, dummySeat, dummyPrice, dummyPerson);
+
+                    // Call the printTicketInfo method on the Ticket instance
+                    dummyTicket.printTicketInfo();
                     break;
 
+
                 case 6:
-                    // Implement searching for a ticket
+                    planeManagement.search_ticket();
                     break;
 
                 case 0:
@@ -69,17 +84,33 @@ public class PlaneManagement2 {
         } while (choice != 0);
     }
 //**************************************************************************************//
+    //ADDING SEAT NUMBERS TO ARRAY AND STUFF
     private void initializeSeats() {
         seatPattern = new int[numberOfRows][];
         for (int i = 0; i < numberOfRows; i++) {
             seatPattern[i] = new int[seatPerRows[i]];
         }
-        // Additional initialization logic if needed
+
     }
 
     private void buySeat(int row, int seat) {
         if (row > 0 && row <= numberOfRows && seat > 0 && seat <= seatPerRows[row - 1]) {
             if (seatPattern[row - 1][seat - 1] == 0) { //check is seat avalable
+                System.out.print("Enter person's name: ");
+                String name = scanner.next();
+                System.out.print("Enter person's surname: ");
+                String surname = scanner.next();
+                System.out.print("Enter person's email: ");
+                String email = scanner.next();
+
+                // Create a Person instance
+                Person person = new Person(name, surname, email);
+
+                System.out.print("Enter the ticket price: ");
+                int price = scanner.nextInt();
+
+                // Create a Ticket instance
+                Ticket ticket = new Ticket(String.valueOf((char) ('A' + row - 1)), seat, price, person);
                 seatPattern[row - 1][seat - 1] = 1; // Mark seat as booked
                 System.out.println("Seat booked successfully!");
             } else {
@@ -118,16 +149,40 @@ public class PlaneManagement2 {
     }
     private static void cancel_seat(int row, int seat) {
         if (row > 0 && row <= numberOfRows && seat > 0 && seat <= seatPerRows[row - 1]) {
-            if (seatPattern[row - 1][seat - 1] == 1) { //Check if seat is booked
-                seatPattern[row - 1][seat - 1] = 0; // Mark seat as available
+            if (seatPattern[row - 1][seat - 1] == 1) {
+                seatPattern[row - 1][seat - 1] = 0;
                 //soldTickets[row - 1][seat - 1] = null;
-                System.out.println("Seat canceled successfully!");
+                for (Ticket ticket : soldTicketsList) {
+                    if (ticket.getRow().equals(String.valueOf((char) ('A' + row - 1))) && ticket.getSeat() == seat) {
+                        soldTicketsList.remove(ticket);
+                        System.out.println("Seat canceled successfully!");
+                        return;
+                    }
+                }
+                System.out.println("Error: Ticket not found in the soldTicketsList.");
             } else {
                 System.out.println("Sorry, the seat is not booked. Please check and try another seat.");
             }
         } else {
             System.out.println("Invalid seat selection. Please check seat pattern and try again!");
         }
+    }
+
+    private void search_ticket() {
+        System.out.print("Enter the row letter (A, B, C, D): ");
+        char rowLabel = scanner.next().charAt(0);
+        System.out.print("Enter the seat number: ");
+        int seatNumber = scanner.nextInt();
+
+        for (Ticket ticket : soldTicketsList) {
+            if (ticket.getRow().equals(String.valueOf(rowLabel)) && ticket.getSeat() == seatNumber) {
+                System.out.println("Ticket found:");
+                ticket.printTicketInfo();
+                return;
+            }
+        }
+
+        System.out.println("Ticket not found.");
     }
     private void printMenu() {
         System.out.println("User Menu:");
@@ -141,6 +196,80 @@ public class PlaneManagement2 {
         System.out.println("*********************************************************");
     }
 
+    public static class Person {
+        private final String name;
+        private final String surname;
+        private final String email;
+
+        public Person(String name, String surname, String email) {
+            this.name = name;
+            this.surname = surname;
+            this.email = email;
+        }
+        public String getName() {
+            return name;
+        }
+
+        public String getSurname() {
+            return surname;
+        }
+
+        public String getEmail() {
+            return email;
+        }
+
+        public void printPersonInfo() {
+            System.out.println("Person Information:");
+            System.out.println("Name: " + name);
+            System.out.println("Surname: " + surname);
+            System.out.println("Email: " + email);
+        }
+    }
+    public static class Ticket {
+        private final String row;
+        private final int seat;
+        private final int price;
+        private final Person person;
+
+        public Ticket(String row, int seat, int price, Person person) {
+            this.row = row;
+            this.seat = seat;
+            this.price = price;
+            this.person = person;
+        }
+
+        public String getRow() {
+            return row;
+        }
+
+
+        public int getSeat() {
+            return seat;
+        }
+
+
+        public int getPrice() {
+            return price;
+        }
+
+
+        public Person getPerson() {
+            return person;
+        }
+
+        public void printTicketInfo() {
+            System.out.println("Ticket Information:");
+            System.out.println("Row: " + row);
+            System.out.println("Seat: " + seat);
+            System.out.println("Price: £" + price);
+            person.printPersonInfo();
+        }
+
+        public void saveToFile() {
+            // Implementation to save Ticket information to a file (e.g., A2.txt)
+            // You can use file I/O operations here
+        }
+    }
 
 }
 
